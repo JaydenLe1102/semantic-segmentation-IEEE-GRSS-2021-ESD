@@ -1,0 +1,41 @@
+name: ESD Hyperparameter Sweep
+
+program: train.py  # Replace with your actual training script name
+method: grid  # Adjust search method (grid, random, bayes) as needed
+
+parameters:
+  # Data Augmentation (if applicable)
+  # ... (you can add parameters for data augmentation here)
+
+  # Model Architecture
+  model_type:
+    values: ["UNet"]  # Currently fixed to UNet, adjust if applicable
+
+  # Training Parameters
+  batch_size:
+    values: [8]
+  max_epochs:
+    values: [6]
+  learning_rate:
+    values: [1e-3]
+  num_workers:
+    values: [12]  # Adjust based on your hardware resources
+
+  # Model Architecture Details (UNet)
+  depth:
+    values: [2, 3, 4]
+  n_encoders:
+    values: [2, 3]
+  embedding_size:
+    values: [32, 64]
+  pool_sizes:  # String representation of list
+    values: ["3,3,2", "5,5,2"]
+  kernel_size:
+    values: [3, 5]
+
+  # Other (if applicable)
+  scale_factor:
+    values: [50]  # Adjust based on your data
+
+# Optional: Specify metric and goal for optimization (replace with your actual metric)
+
