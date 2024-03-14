@@ -9,13 +9,13 @@ parameters:
 
   # Model Architecture
   model_type:
-    values: ["UNet"]  # Currently fixed to UNet, adjust if applicable
+    values: ["DeepLabV3Plus"]  # Currently fixed to UNet, adjust if applicable
 
   # Training Parameters
   batch_size:
-    values: [8]
+    values: [4, 8, 16]
   max_epochs:
-    values: [6]
+    values: [20]
   learning_rate:
     values: [1e-3]
   num_workers:

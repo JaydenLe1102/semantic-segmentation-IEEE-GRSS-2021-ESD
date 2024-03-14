@@ -249,3 +249,8 @@ class UNet(nn.Module):
 
         return x
 
+
+
+
+
+#unet 75.06 accuracy with epoch 22 and default parameters (metrics9)

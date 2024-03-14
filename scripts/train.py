@@ -30,10 +30,10 @@ class ESDConfig:
     processed_dir: str | os.PathLike = root / 'data/processed/4x4'
     raw_dir: str | os.PathLike = root / 'data/raw/Train'
     selected_bands: None = None
-    model_type: str = "SegmentationCNN"
+    model_type: str = "UNet"
     tile_size_gt: int = 4
     batch_size: int = 8
-    max_epochs: int = 2
+    max_epochs: int = 30
     seed: int = 12378921
     learning_rate: float = 1e-3
     num_workers: int = 11
@@ -64,9 +64,9 @@ def train(options: ESDConfig):
     """
     # Initialize the weights and biases logger
     if options.wandb_run_name: #make sure name is not none
-        wb_logger = WandbLogger(name=options.wandb_run_name, log_model="all")
+        wb_logger = WandbLogger(name=options.wandb_run_name, project="jetshark_hw3")
     else:
-        wb_logger = WandbLogger(log_model="all")
+        wb_logger = None
         
     csv_logger = CSVLogger(save_dir=root / 'logs', name=options.model_type)
     
@@ -101,7 +101,7 @@ def train(options: ESDConfig):
         in_channels=99,
         out_channels=4,
         learning_rate=options.learning_rate,
-        model_params=params_dict
+        model_params=params_dict,
         )
 
     # Use the following callbacks, they're provided for you,

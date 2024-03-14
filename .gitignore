@@ -3,11 +3,25 @@ data/processed/*
 data/raw/Val/
 data/raw/zipfiles/*
 data/raw/Train/
-
+plots/*
+scripts/lightning_logs/
+scripts/wandb/
+models/*
+my-first-sweep/
+data/predictions/
+models/*
 esdenv
 references/*
+.vscode/*
+wandb/
+.DS_Store
+sh/slurm_files/
 
-.Ds_Store
+hparams.yaml
+
+# Other files to ignore
+.env
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
