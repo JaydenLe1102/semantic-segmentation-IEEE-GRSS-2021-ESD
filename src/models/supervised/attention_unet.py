@@ -1,38 +1,38 @@
-"""
-This code is adapted from the U-Net paper. See details in the paper:
-Ronneberger, O., Fischer, P., & Brox, T. (2015). U-net: Convolutional networks for biomedical image segmentation.
-"""
 import torch
 import torch.nn as nn
 from torchvision.models import resnet50
-from torch.nn.functional import relu, pad, interpolate
+from torch.nn.functional import relu, pad
 
 
-class Attentionaddon(nn.Module):
-    def __init__(self, input_channels, gating_channels, inter_channels):
-        super(Attentionaddon, self).__init__()
-        self.W_g = nn.Conv2d(gating_channels, inter_channels, kernel_size=1, stride=1, padding=0)
-        self.W_x = nn.Conv2d(input_channels, inter_channels, kernel_size=2, stride=2, padding=0)
+class AttentionGate(nn.Module):
+    def __init__(self, gating, skip_con, int_channels):
+
+        super(AttentionGate, self).__init__()
+        self.W_g = nn.Sequential(
+            nn.Conv2d(gating, int_channels, kernel_size=1, stride=1, padding=0, bias=True),
+            nn.BatchNorm2d(int_channels)
+        )
+
+        self.W_x = nn.Sequential(
+            nn.Conv2d(skip_con, int_channels, kernel_size=1, stride=1, padding=0, bias=True),
+            nn.BatchNorm2d(int_channels)
+        )
+
         self.psi = nn.Sequential(
-            nn.Conv2d(inter_channels, 1, kernel_size=1, stride=1, padding=0),
+            nn.Conv2d(int_channels, 1, kernel_size=1, stride=1, padding=0, bias=True),
+            nn.BatchNorm2d(1),
             nn.Sigmoid()
         )
+
         self.relu = nn.ReLU(inplace=True)
 
-    def forward(self, x, g):
-        g1 = self.W_g(g)
-        x1 = self.W_x(x)
-
-        # Resize x1 to match the spatial of g1
-        if g1.size()[2:] != x1.size()[2:]:
-            x1 = interpolate(x1, size=(g1.size(2), g1.size(3)), mode='bilinear', align_corners=True)
-
-        psi = self.relu(g1 + x1)
+    def forward(self, g, x):
+        g_conv = self.W_g(g)
+        x_conv = self.W_x(x)
+        psi = self.relu(g_conv + x_conv)
         psi = self.psi(psi)
 
-        # this will re-weight data
         return x * psi
-
 
 class DoubleConvHelper(nn.Module):
     def __init__(self, in_channels, out_channels, mid_channels=None):
@@ -82,9 +82,8 @@ class DoubleConvHelper(nn.Module):
         return x
 
 
-class Encoder(nn.Module):  # downsampling
+class Encoder(nn.Module): #downsampling
     """ Downscale using the maxpool then call double conv helper. """
-
     def __init__(self, in_channels, out_channels):
         super().__init__()
 
@@ -103,10 +102,9 @@ class Encoder(nn.Module):  # downsampling
         return x
 
 
-class Decoder(nn.Module):  # upsampling
+class Decoder(nn.Module): #upsampling
     """ Upscale using ConvTranspose2d then call double conv helper. """
-
-    def __init__(self, in_channels, out_channels):
+    def __init__(self, in_channels, out_channels, int_channel):
         super().__init__()
 
         in_channels = int(in_channels)
@@ -118,7 +116,8 @@ class Decoder(nn.Module):  # upsampling
         self.conv_transpose = nn.ConvTranspose2d(
             in_channels, in_channels // 2, kernel_size=2, stride=2
         )
-        self.attention_gate = Attentionaddon(in_channels // 2, in_channels // 2, in_channels // 4)
+        self.attention_gate = AttentionGate(in_channels // 2, out_channels, int_channel)
+
         self.double_conv = DoubleConvHelper(in_channels, out_channels)
 
     def forward(self, x1, x2):
@@ -134,18 +133,22 @@ class Decoder(nn.Module):  # upsampling
         # step 1: replace x1 with the upsampled version of x1
 
         x1 = self.conv_transpose(x1)
+        x2 = self.attention_gate(x1, x2)
 
+        # input is Channel Height Width, step 2
+        diffY = x2.size()[2] - x1.size()[2]
+        diffX = x2.size()[3] - x1.size()[3]
 
-        # step 2, using attention addon to reweight data
-        x2_att = self.attention_gate(x2, x1)
-
-        # step 3, output now is different size so requires some shifts
-        diffY = x2_att.size()[2] - x1.size()[2]
-        diffX = x2_att.size()[3] - x1.size()[3]
-        x1 = pad(x1, [diffX // 2, diffX - diffX // 2, diffY // 2, diffY - diffY // 2])
+        # step 3
+        x1 = pad(x1, [diffX // 2, diffX - diffX // 2,
+                        diffY // 2, diffY - diffY // 2])
+        # if you have padding issues, see
+        # https://github.com/HaiyongJiang/U-Net-Pytorch-Unstructured-Buggy/commit/0e854509c2cea854e247a9c615f175f76fbb2e3a
+        # https://github.com/xiaopeng-liao/Pytorch-UNet/commit/8ebac70e633bac59fc22bb5195e513d5832fb3bd
 
         # step 4 & 5: Concatenate x1 and x2
-        x = torch.cat([x1, x2_att], dim=1)
+
+        x = torch.cat([x1, x2], dim=1)
 
         # step 6: Pass the concatenated tensor through a doubleconvhelper
 
@@ -153,7 +156,6 @@ class Decoder(nn.Module):  # upsampling
 
         # step 7: return output
         return x
-
 
 class UNet(nn.Module):
     def __init__(self, in_channels: int, out_channels: int, n_encoders: int = 2,
@@ -212,8 +214,8 @@ class UNet(nn.Module):
         # Encoder blocks
         self.encoders = nn.ModuleList()
         for i in range(n_encoders - 1):  # Use n_encoders for correct iteration
-            in_enc_channels = self.embedding_size * 2 ** i
-            out_enc_channels = self.embedding_size * 2 ** (i + 1)
+            in_enc_channels =  self.embedding_size * 2**i
+            out_enc_channels = self.embedding_size * 2**(i + 1)
             self.encoders.append(
                 Encoder(in_enc_channels, out_enc_channels)
             )
@@ -221,10 +223,10 @@ class UNet(nn.Module):
         # Decoder blocks
         self.decoders = nn.ModuleList()
         for i in range(n_encoders - 1):  # Use n_encoders - 1 for correct decoder count
-            in_dec_channels = self.embedding_size * 2 ** (n_encoders - i - 1)
-            out_dec_channels = self.embedding_size * 2 ** (n_encoders - i - 2)
+            in_dec_channels = self.embedding_size * 2**(n_encoders - i - 1)
+            out_dec_channels = self.embedding_size * 2**(n_encoders - i - 2)
             self.decoders.append(
-                Decoder(in_dec_channels, out_dec_channels)
+                Decoder(in_dec_channels, out_dec_channels, int_channel=out_dec_channels // 2)
             )
 
         # Final convolution layer
@@ -234,6 +236,7 @@ class UNet(nn.Module):
 
         # Pooling layer for output downscaling
         self.pool = nn.MaxPool2d(scale_factor, stride=scale_factor)
+
 
     def forward(self, x):
         """
@@ -275,4 +278,3 @@ class UNet(nn.Module):
 
         return x
 
-# unet 75.06 accuracy with epoch 22 and default parameters (metrics9)
