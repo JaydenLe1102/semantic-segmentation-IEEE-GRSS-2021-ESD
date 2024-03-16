@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from src.models.supervised.deeplabv3 import DeepLabV3Plus
-from src.models.supervised.unet import UNet
+from src.models.supervised.attention_unet import UNet
 
 
 class DeepLabV3_Unet(nn.Module):
