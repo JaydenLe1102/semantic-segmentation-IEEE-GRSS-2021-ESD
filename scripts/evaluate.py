@@ -30,6 +30,9 @@ import matplotlib.pyplot as plt
 import matplotlib
 import tifffile
 import torch
+import torch.multiprocessing
+torch.multiprocessing.set_sharing_strategy('file_system')
+torch.set_default_device("mps")
 
 @dataclass
 class EvalConfig:
@@ -71,10 +74,10 @@ def main(options):
     # will not evaluate properly
 
     # instantiate pytorch lightning trainer
-    plTrainer = pl.Trainer()
+    #plTrainer = pl.Trainer()
 
     # run the validation loop with trainer.validate
-    plTrainer.validate(model = model, datamodule=dm)
+    #plTrainer.validate(model = model, datamodule=dm)
 
     # run restitch_and_plot
 
@@ -87,15 +90,9 @@ def main(options):
     print(sorted(tiles))
     for parent_tile_id in sorted(tiles):
         
-        restitch_and_plot(options = options, datamodule= dm, model= model, parent_tile_id= parent_tile_id, rgb_bands = options.selected_bands, image_dir = options.results_dir)
-        
+        restitch_and_plot(options = options, datamodule= dm, model= model, parent_tile_id= parent_tile_id, image_dir = options.results_dir)
+
         stitched_image,stitched_ground_truth, y_pred  = restitch_eval(options.processed_dir / "Val", "sentinel2", parent_tile_id, (0, 4), (0, 4), dm, model)
-        
-        #print shape
-        #print("Shapes")
-        #print(stitched_image.shape)
-        #print(stitched_ground_truth.shape)
-        #print(y_pred.shape)
         
         y_pred = np.argmax(y_pred, axis=0)
         

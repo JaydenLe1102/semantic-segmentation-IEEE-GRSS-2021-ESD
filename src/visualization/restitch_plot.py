@@ -88,9 +88,9 @@ def get_subtile_from_datamodule_testing(datamodule, tile_id):
     #subTilesX, subTilesY, subTilesMetadata = zip(*sorted_combined)
     
     ##return subTilesX, subTilesY, subTilesMetadata
-    #return torch.stack(subTilesX), torch.stack(subTilesY), subTilesMetadata 
+    return torch.stack(subTilesX), torch.stack(subTilesY), subTilesMetadata 
     
-    return subTilesX, subTilesY, subTilesMetadata
+    #return subTilesX, subTilesY, subTilesMetadata
 
 def restitch_and_plot(options, datamodule, model, parent_tile_id, satellite_type="sentinel2", rgb_bands=[3,2,1], image_dir: None | str | os.PathLike = None):
     """
@@ -104,23 +104,13 @@ def restitch_and_plot(options, datamodule, model, parent_tile_id, satellite_type
         satellite_type: str
         rgb_bands: List[int]
     """
-    processed_dir = options.processed_dir / 'Val' / 'subtiles'
+    processed_dir = options.processed_dir / 'Val'
     
-    subtilesX, subtilesY, subtilesMetaData = get_subtile_from_datamodule(datamodule, parent_tile_id)
-    prediction = model(subtilesX)
+    stitched_image,stitched_ground_truth, y_pred = restitch_eval(processed_dir, satellite_type, parent_tile_id, (0, options.tile_size_gt), (0, options.tile_size_gt), datamodule, model)
     
-    ground_truth_image = subtilesY.reshape(16, 16) * 255
-    labels= torch.argmax(prediction, dim=1)
-    
-    prediction_image = labels.reshape(16, 16) * 255 
-
-    
-    stitched_img, metadata = restitch(processed_dir, satellite_type, parent_tile_id, (0, options.tile_size_gt), (0, options.tile_size_gt))
-    
-    #print(stitched_img.shape)
-    if rgb_bands is None :
-        rgb_bands = [3,2,1]
-    rgb_img = np.dstack([stitched_img[0,i,:,:] for i in rgb_bands])
+    y_pred = np.argmax(y_pred, axis=0)
+    stitched_ground_truth = stitched_ground_truth[0]
+    rgb_img = np.dstack([stitched_image[0,i,:,:] for i in rgb_bands])
 
     cmap = matplotlib.colors.LinearSegmentedColormap.from_list("Settlements", np.array(['#ff0000', '#0000ff', '#ffff00', '#b266ff']), N=4)
 
@@ -137,11 +127,11 @@ def restitch_and_plot(options, datamodule, model, parent_tile_id, satellite_type
     axs[0].set_title('RGB Image')
 
     # Plot ground truth with colormap
-    im = axs[1].imshow(ground_truth_image, cmap=cmap, vmin=-0.5, vmax=3.5)  # Use correct colormap range
+    im = axs[1].imshow(stitched_ground_truth, cmap=cmap, vmin=-0.5, vmax=3.5)  # Use correct colormap range
     axs[1].set_title('Ground Truth')
 
     # Plot prediction with colormap (assuming prediction_image holds class labels)
-    axs[2].imshow(prediction_image.cpu(), cmap=cmap, vmin=-0.5, vmax=3.5)  # Use correct colormap range
+    axs[2].imshow(y_pred, cmap=cmap, vmin=-0.5, vmax=3.5)  # Use correct colormap range
     axs[2].set_title('Model Prediction')
     plt.tight_layout()
     
@@ -249,9 +239,8 @@ def restitch_eval(dir: str | os.PathLike, satellite_type: str, tile_id: str, ran
             # i.e., (batch_size, channels, width, height) with batch_size = 1
             # make sure that the tile is in GPU memory, i.e., X = X.cuda()
             
-            #print(X.shape)
             X = X.unsqueeze(0)
-            #X = X.cuda()
+            X = torch.tensor(X, device='mps:0')
             model.eval()
             #print("after squeeze")
             #print(X.shape)
