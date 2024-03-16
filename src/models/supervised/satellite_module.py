@@ -8,6 +8,7 @@ from src.models.supervised.segmentation_cnn import SegmentationCNN
 from src.models.supervised.unet import UNet
 from src.models.supervised.resnet_transfer import FCNResnetTransfer
 from src.models.supervised.deeplabv3 import DeepLabV3Plus
+from src.models.supervised.deeplabv3_unet import DeepLabV3_Unet
 
 class ESDSegmentation(pl.LightningModule):
     """
@@ -43,6 +44,8 @@ class ESDSegmentation(pl.LightningModule):
             self.model = UNet(in_channels, out_channels, **model_params)
         elif model_type == "FCNResnetTransfer":
             self.model = FCNResnetTransfer(in_channels, out_channels, **model_params)
+        elif model_type == "DeepLabV3_Unet":
+            self.model = DeepLabV3_Unet(in_channels, out_channels, **model_params)
         elif model_type == "DeepLabV3Plus":
             self.model = DeepLabV3Plus(in_channels, out_channels, **model_params)
         else:
