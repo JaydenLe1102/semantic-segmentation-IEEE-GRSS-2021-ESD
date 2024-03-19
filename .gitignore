@@ -16,7 +16,7 @@ references/*
 wandb/
 .DS_Store
 sh/slurm_files/
-
+metrics.csv
 hparams.yaml
 
 # Other files to ignore

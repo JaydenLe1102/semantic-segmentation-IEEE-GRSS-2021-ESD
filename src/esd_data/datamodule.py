@@ -241,9 +241,9 @@ class ESDDataModule(pl.LightningDataModule):
         train_dataloader = torch.utils.data.DataLoader(
             dataset=self.train_dataset,
             batch_size=self.batch_size,
-            num_workers=self.num_workers,
+            #num_workers=self.num_workers,
             collate_fn=collate_fn,
-            persistent_workers=True
+            #persistent_workers=True
         )
         
         return train_dataloader
@@ -258,9 +258,9 @@ class ESDDataModule(pl.LightningDataModule):
         val_dataloader = torch.utils.data.DataLoader(
             dataset=self.val_dataset,
             batch_size=self.batch_size,
-            num_workers=self.num_workers,
+            #num_workers=self.num_workers,
             collate_fn=collate_fn,
-            persistent_workers=True  
+            #persistent_workers=True  
         )
 
         return val_dataloader

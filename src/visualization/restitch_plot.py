@@ -240,7 +240,7 @@ def restitch_eval(dir: str | os.PathLike, satellite_type: str, tile_id: str, ran
             # make sure that the tile is in GPU memory, i.e., X = X.cuda()
             
             X = X.unsqueeze(0)
-            X = torch.tensor(X, device='mps:0')
+            #X = torch.tensor(X, device='mps:0')
             model.eval()
             #print("after squeeze")
             #print(X.shape)

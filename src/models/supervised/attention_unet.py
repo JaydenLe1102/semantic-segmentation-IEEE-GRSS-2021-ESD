@@ -157,7 +157,7 @@ class Decoder(nn.Module): #upsampling
         # step 7: return output
         return x
 
-class UNet(nn.Module):
+class AttentionUNet(nn.Module):
     def __init__(self, in_channels: int, out_channels: int, n_encoders: int = 2,
                  embedding_size: int = 64, scale_factor: int = 50, **kwargs):
         """
@@ -198,7 +198,7 @@ class UNet(nn.Module):
             for example, if the input is 800x800 and the output is 16x6
             then the scale factor is 800/16 = 50.
         """
-        super(UNet, self).__init__()
+        super(AttentionUNet, self).__init__()
 
         in_channels = int(in_channels)
         out_channels = int(out_channels)

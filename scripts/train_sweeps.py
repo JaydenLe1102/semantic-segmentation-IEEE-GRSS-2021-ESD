@@ -13,7 +13,7 @@ import argparse
 from train import train, ESDConfig
 
 def main():
-    wandb.init(project="DeepLabV3Plus_Sweeps")
+    wandb.init(project="DeepLabV3_Unet_Sweeps")
     print(wandb.config)
     options = ESDConfig(**wandb.config)
     train(options)
@@ -30,5 +30,5 @@ if __name__ == "__main__":
             sweep_config = yaml.safe_load(f)
             print(f"Sweep config: {sweep_config}")
 
-        sweep_id = wandb.sweep(sweep=sweep_config, project="DeepLabV3Plus_Sweeps")
+        sweep_id = wandb.sweep(sweep=sweep_config, project="DeepLabV3_Unet_Sweeps")
         wandb.agent(sweep_id, function=main, count=10)

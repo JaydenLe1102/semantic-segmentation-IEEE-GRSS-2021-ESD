@@ -30,10 +30,10 @@ class ESDConfig:
     processed_dir: str | os.PathLike = root / 'data/processed/4x4'
     raw_dir: str | os.PathLike = root / 'data/raw/Train'
     selected_bands: None = None
-    model_type: str = "DeepLabV3_Unet"
+    model_type: str = "SegmentationCNN"
     tile_size_gt: int = 4
     batch_size: int = 8
-    max_epochs: int = 20
+    max_epochs: int = 2
     seed: int = 12378921
     learning_rate: float = 1e-3
     num_workers: int = 11
@@ -42,7 +42,7 @@ class ESDConfig:
     in_channels: int = 99
     out_channels: int = 4
     depth: int = 2
-    n_encoders: int = 2
+    n_encoders: int = 4
     embedding_size: int = 64
     pool_sizes: str = "5,5,2" # List[int] = [5,5,2]
     kernel_size: int = 3
@@ -66,7 +66,9 @@ def train(options: ESDConfig):
     if options.wandb_run_name: #make sure name is not none
         wb_logger = WandbLogger(name=options.wandb_run_name, log_model="all")
     else:
-        wb_logger = WandbLogger(log_model="all")
+        #wb_logger = WandbLogger(log_model="all")
+        wb_logger = None
+        
         
     csv_logger = CSVLogger(save_dir=root / 'logs', name=options.model_type)
     
@@ -151,8 +153,6 @@ def train(options: ESDConfig):
     # run trainer.fit
     # make sure to use the datamodule option
     trainer.fit(model, datamodule=esd)
-
-
 
 
 

@@ -254,3 +254,5 @@ class UNet(nn.Module):
 
 
 #unet 75.06 accuracy with epoch 22 and default parameters (metrics9)
+
+#lastmodel Unet v6(*) or v7 metrics32 final metrics

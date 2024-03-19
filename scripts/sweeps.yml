@@ -9,7 +9,7 @@ parameters:
 
   # Model Architecture
   model_type:
-    values: ["DeepLabV3Plus"]  # Currently fixed to UNet, adjust if applicable
+    values: ["DeepLabV3_Unet"]  # Currently fixed to UNet, adjust if applicable
 
   # Training Parameters
   batch_size:

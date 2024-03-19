@@ -9,6 +9,8 @@ from src.models.supervised.unet import UNet
 from src.models.supervised.resnet_transfer import FCNResnetTransfer
 from src.models.supervised.deeplabv3 import DeepLabV3Plus
 from src.models.supervised.deeplabv3_unet import DeepLabV3_Unet
+from src.models.supervised.attention_unet import AttentionUNet
+from src.models.supervised.deeplabv3_attention_unet import DeepLabV3_AttentionUnet
 
 class ESDSegmentation(pl.LightningModule):
     """
@@ -48,6 +50,10 @@ class ESDSegmentation(pl.LightningModule):
             self.model = DeepLabV3_Unet(in_channels, out_channels, **model_params)
         elif model_type == "DeepLabV3Plus":
             self.model = DeepLabV3Plus(in_channels, out_channels, **model_params)
+        elif model_type == "AttentionUNet":
+            self.model = AttentionUNet(in_channels, out_channels, **model_params)
+        elif model_type == "DeepLabV3_AttentionUnet":
+            self.model = DeepLabV3_AttentionUnet(in_channels, out_channels, **model_params)
         else:
             raise ValueError(f"Unknown model type: {model_type}")
 

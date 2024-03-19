@@ -1,14 +1,14 @@
 import torch
 import torch.nn as nn
 from src.models.supervised.deeplabv3 import DeepLabV3Plus
-from src.models.supervised.unet import UNet
+from src.models.supervised.attention_unet import AttentionUNet
 
 
-class DeepLabV3_Unet(nn.Module):
+class DeepLabV3_AttentionUnet(nn.Module):
   
   def __init__ (self, in_channels, out_channels, scale_factor=50, **kwargs):
     
-    super(DeepLabV3_Unet, self).__init__()
+    super(DeepLabV3_AttentionUnet, self).__init__()
     
     self.in_channels = in_channels
     self.out_channels = out_channels
@@ -17,7 +17,7 @@ class DeepLabV3_Unet(nn.Module):
     self.deeplabv3.backbone.conv1 = nn.Conv2d(self.in_channels, 64, kernel_size=7, stride=2, padding=3, bias=False)
     self.deeplabv3.classifier[-1] = nn.Conv2d(256, self.in_channels, kernel_size=1, stride=1)
 
-    self.unet = UNet(in_channels, out_channels, **kwargs)
+    self.unet = AttentionUNet(in_channels, out_channels, **kwargs)
     
   
   def forwardDeepLabV3(self, x):
@@ -35,4 +35,4 @@ class DeepLabV3_Unet(nn.Module):
     return x
 
 
-#last one
+# final metrics metrics31 newest

@@ -38,13 +38,13 @@ torch.set_default_device("mps")
 class EvalConfig:
     processed_dir: str | os.PathLike = root / 'data/processed/4x4'
     raw_dir: str | os.PathLike = root / 'data/raw/Train'
-    results_dir: str | os.PathLike = root / 'data/predictions' / "UNet"
+    results_dir: str | os.PathLike = root / 'data/predictions' / "DeepLabV3_Unet"
     selected_bands: None = None
     tile_size_gt: int = 4
     batch_size: int = 8
     seed: int = 12378921
     num_workers: int = 11
-    model_path: str | os.PathLike = root / "models" / "UNet" / "last.ckpt"
+    model_path: str | os.PathLike = root / "models" / "DeepLabV3_Unet" / "last-v10.ckpt"
 
 
 
@@ -74,10 +74,10 @@ def main(options):
     # will not evaluate properly
 
     # instantiate pytorch lightning trainer
-    #plTrainer = pl.Trainer()
+    plTrainer = pl.Trainer()
 
     # run the validation loop with trainer.validate
-    #plTrainer.validate(model = model, datamodule=dm)
+    plTrainer.validate(model = model, datamodule=dm)
 
     # run restitch_and_plot
 
