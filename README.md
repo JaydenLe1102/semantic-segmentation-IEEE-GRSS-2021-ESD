@@ -27,13 +27,13 @@ JetShark:
 	- Horizontal flip
 	- Verticle flip
 - Baseline models: 
-	- UNet
-	- Segmentation CNN
+	- UNet: https://github.com/cs175cv-w2024/final-project-jetshark/blob/main/models/UNet/last-v6.ckpt
+	- Segmentation CNN: https://github.com/cs175cv-w2024/final-project-jetshark/blob/main/models/SegmentationCNN/last.ckpt
 	- Resnet_transfer
 - Deeplearning models: 
-	- Deeplabv3 + UNet
-	- Attention Module + UNet
-	- Deeplabv3 + Attention Module + UNet
+	- Deeplabv3 + UNet: https://drive.google.com/file/d/1oF3b6Tzk_humYaAmzOMWNKF0imN3nrE7/view?usp=sharing 
+	- Attention Module + UNet: https://github.com/cs175cv-w2024/final-project-jetshark/blob/main/models/AttentionUNet/last.ckpt
+	- Deeplabv3 + Attention Module + UNet: https://drive.google.com/file/d/1SBpLAjl_4C5kjBs86numIw8HGdFnBGaq/view?usp=sharing
 
 
 ## How to get started: 
