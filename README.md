@@ -29,7 +29,7 @@ JetShark:
 - Baseline models: 
 	- UNet: https://github.com/cs175cv-w2024/final-project-jetshark/blob/main/models/UNet/last-v6.ckpt
 	- Segmentation CNN: https://github.com/cs175cv-w2024/final-project-jetshark/blob/main/models/SegmentationCNN/last.ckpt
-	- Resnet_transfer
+	- Resnet_transfer: https://drive.google.com/file/d/1fW_kKPJNZ8mqSK5gt2Iab7Hk8zw3utXO/view?usp=sharing
 - Deeplearning models: 
 	- Deeplabv3 + UNet: https://drive.google.com/file/d/1oF3b6Tzk_humYaAmzOMWNKF0imN3nrE7/view?usp=sharing 
 	- Attention Module + UNet: https://github.com/cs175cv-w2024/final-project-jetshark/blob/main/models/AttentionUNet/last.ckpt
