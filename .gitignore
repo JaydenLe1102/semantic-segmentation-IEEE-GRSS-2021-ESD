@@ -6,10 +6,8 @@ data/raw/Train/
 plots/*
 scripts/lightning_logs/
 scripts/wandb/
-models/*
 my-first-sweep/
-data/predictions/
-models/*
+#data/predictions/
 esdenv
 references/*
 .vscode/*
@@ -18,6 +16,9 @@ wandb/
 sh/slurm_files/
 metrics.csv
 hparams.yaml
+models/DeepLabV3_AttentionUnet/
+models/DeepLabV3_Unet/
+
 
 # Other files to ignore
 .env
